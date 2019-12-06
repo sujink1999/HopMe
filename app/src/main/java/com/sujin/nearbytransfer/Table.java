@@ -19,7 +19,19 @@ public class Table {
 
     }
 
-    public boolean checkID(String id,String name)
+    public String getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getPath() {
+        return path;
+    }
+
+    public boolean checkID(String id, String name)
     {
         if(this.id.equals(id) && this.name.equals(name))
         {

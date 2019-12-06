@@ -5,11 +5,13 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
 import android.os.FileUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.nearby.Nearby;
@@ -50,6 +52,8 @@ public class MainActivity extends AppCompatActivity {
     String myName = "myName";
     RandomString randomString;
     Payload incomingPayload;
+    String discovery = "", advertise = "";
+    TextView discoveryTV, advertiseTV;
 
 
     @Override
@@ -58,8 +62,14 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         initialize();
+
+        discoveryTV = findViewById(R.id.discovery);
+        advertiseTV = findViewById(R.id.advertise);
+
         startAdvertising();
         startDiscovery();
+
+
 
     }
 
@@ -88,6 +98,8 @@ public class MainActivity extends AppCompatActivity {
                             }
                         }
                 );
+        advertise+=" on";
+        advertiseTV.setText(advertise);
     }
 
     private void startDiscovery() {
@@ -107,16 +119,22 @@ public class MainActivity extends AppCompatActivity {
                         Toast.makeText(MainActivity.this, e.toString(), Toast.LENGTH_SHORT).show();
                     }
                 });
+        discovery+=" on";
+        discoveryTV.setText(discovery);
     }
 
     private void stopDiscovery() {
         Nearby.getConnectionsClient(getApplicationContext()).stopDiscovery();
         Toast.makeText(this, "Discovery Stopped.", Toast.LENGTH_SHORT).show();
+        discovery+=" off";
+        discoveryTV.setText(discovery);
     }
 
     private void stopAdvertising() {
         Nearby.getConnectionsClient(getApplicationContext()).stopAdvertising();
         Toast.makeText(this, "Advertising Stopped.", Toast.LENGTH_SHORT).show();
+        advertise+=" off";
+        advertiseTV.setText(advertise);
     }
 
 
@@ -139,7 +157,13 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onEndpointFound(@NonNull String s, @NonNull DiscoveredEndpointInfo discoveredEndpointInfo) {
 
+
+
                 if (!connectedDevices.contains(s)) {
+                    if(availableDevices.contains(s))
+                    {
+                        availableDevices.remove(s);
+                    }
                     availableDevices.add(s);
                     availableArrayAdapter.notifyDataSetChanged();
                     requestConnection(s);
@@ -165,11 +189,25 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onConnectionResult(@NonNull String s, @NonNull ConnectionResolution connectionResolution) {
-                connectedDevices.add(s);
-                connectedArrayAdapter.notifyDataSetChanged();
-                startAdvertising();
-                startDiscovery();
 
+                Log.i("status",connectionResolution.getStatus().toString());
+                if(connectionResolution.getStatus().toString().equals("Status{statusCode=SUCCESS, resolution=null}")) {
+                    connectedDevices.add(s);
+                    connectedArrayAdapter.notifyDataSetChanged();
+                    startAdvertising();
+                    startDiscovery();
+                    Log.i("status","status success");
+
+                    sendAvailableData(s);
+
+                }else
+                {
+                    startDiscovery();
+                    startAdvertising();
+                    availableDevices.remove(s);
+                    availableArrayAdapter.notifyDataSetChanged();
+                    Log.i("status","status failure");
+                }
             }
 
             @Override
@@ -197,11 +235,14 @@ public class MainActivity extends AppCompatActivity {
                         byte[] fileByteArray = getFile(index, receivedByteArray);
                         String fileName = getFileName(index, receivedByteArray);
                         String id = fileName.substring(0, 10);
-                        String name = fileName.substring(10, fileName.length() - 4);
+                        String name = fileName.substring(10);
+                        String extension = fileName.substring(fileName.lastIndexOf("."));
 
                         if (!(checkSentTable(id, name) || checkReceivedTable(id, name))) {
                             File outputFile = new File(getFilesDir(), fileName);
                             receivedTables.add(new Table(id, name, outputFile.getAbsolutePath()));
+                            Log.i("receivedtable", "added "+fileName);
+                            broadcast(receivedByteArray,s);
                             try (FileOutputStream fos = new FileOutputStream(outputFile)) {
                                 fos.write(fileByteArray);
                             } catch (Exception e) {
@@ -210,6 +251,7 @@ public class MainActivity extends AppCompatActivity {
                         }
                         Toast.makeText(MainActivity.this, "Data received!", Toast.LENGTH_SHORT).show();
                         Toast.makeText(MainActivity.this, fileName, Toast.LENGTH_SHORT).show();
+                        incomingPayload = null;
                     }
 
                 }
@@ -246,9 +288,10 @@ public class MainActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
                 byte[] encodedData = encode(file.getAbsolutePath(),fName);
-                sentTables.add(new Table(id,myName,file.getAbsolutePath()));
-                broadcast(encodedData);
+                sentTables.add(new Table(id,myName+".txt",file.getAbsolutePath()));
+                broadcast(encodedData,"");
                 Toast.makeText(MainActivity.this, fName, Toast.LENGTH_SHORT).show();
+                Log.i("senttable", "added "+fName);
             }
         });
 
@@ -256,8 +299,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void requestConnection(String endpoint) {
-        stopDiscovery();
-        stopAdvertising();
+
         Nearby.getConnectionsClient(getApplicationContext())
                 .requestConnection("user1", endpoint, mConnectionLifecycleCallback)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -346,16 +388,18 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    private void broadcast(byte[] encodedData)
+    private void broadcast(byte[] encodedData,String endpoint)
     {
         for(int i=0; i<connectedDevices.size();i++)
         {
-            try {
-                Payload byteArrayPayload = Payload.fromBytes(encodedData);
-                Nearby.getConnectionsClient(getApplicationContext()).sendPayload(connectedDevices.get(i), byteArrayPayload);
+            if(!connectedDevices.get(i).equals(endpoint)) {
+                try {
+                    Payload byteArrayPayload = Payload.fromBytes(encodedData);
+                    Nearby.getConnectionsClient(getApplicationContext()).sendPayload(connectedDevices.get(i), byteArrayPayload);
 
-            } catch (Exception e) {
-                Toast.makeText(MainActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+                } catch (Exception e) {
+                    Toast.makeText(MainActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+                }
             }
         }
     }
@@ -388,6 +432,40 @@ public class MainActivity extends AppCompatActivity {
         }
         return flag;
 
+    }
+
+    private void sendAvailableData(String endpoint)
+    {
+        String fName;
+        for(int i=0 ; i<sentTables.size();i++)
+        {
+            fName = sentTables.get(i).getId()+sentTables.get(i).getName();
+            File file = new File(sentTables.get(i).getPath());
+            byte[] encodedData = encode(file.getAbsolutePath(),fName);
+
+            try {
+                Payload byteArrayPayload = Payload.fromBytes(encodedData);
+                Nearby.getConnectionsClient(getApplicationContext()).sendPayload(endpoint, byteArrayPayload);
+
+            } catch (Exception e) {
+                Toast.makeText(MainActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        }
+
+        for(int i=0 ; i<receivedTables.size();i++)
+        {
+            fName = receivedTables.get(i).getId()+receivedTables.get(i).getName();
+            File file = new File(receivedTables.get(i).getPath());
+            byte[] encodedData = encode(file.getAbsolutePath(),fName);
+
+            try {
+                Payload byteArrayPayload = Payload.fromBytes(encodedData);
+                Nearby.getConnectionsClient(getApplicationContext()).sendPayload(endpoint, byteArrayPayload);
+
+            } catch (Exception e) {
+                Toast.makeText(MainActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 
 

@@ -7,10 +7,12 @@
     android:orientation="vertical"
     tools:context=".MainActivity">
 
+
     <ListView
         android:layout_width="match_parent"
         android:layout_height="200dp"
         android:id="@+id/devicesList"
+        android:layout_marginBottom="30dp"
         />
 
     <ListView
@@ -25,6 +27,25 @@
         android:text="Send"
         android:id="@+id/sendButton"
         android:layout_gravity="center_horizontal"></Button>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/discovery"
+        android:textSize="25sp"
+        android:paddingLeft="15dp"
+        ></TextView>
+
+    <TextView
+        android:layout_marginTop="50dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/advertise"
+        android:textSize="25sp"
+        android:paddingLeft="15dp"
+        ></TextView>
+
+
 
 
 
