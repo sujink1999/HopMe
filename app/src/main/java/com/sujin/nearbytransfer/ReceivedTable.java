@@ -1,21 +1,25 @@
 package com.sujin.nearbytransfer;
 
-public class Table {
+import android.net.Uri;
+
+public class ReceivedTable {
 
     private String id;
     private String name;
     private String path;
+    private String message;
     /*private String userName;
     private String time;
     private String location;*/
 
 
-    public Table(String id, String name, String path)
+    public ReceivedTable(String id, String name, String message, String path)
     {
 
         this.id = id;
         this.name = name;
         this.path = path;
+        this.message = message;
 
     }
 
@@ -40,4 +44,7 @@ public class Table {
         return false;
     }
 
+    public String getMessage() {
+        return message;
+    }
 }
