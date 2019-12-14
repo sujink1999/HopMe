@@ -1,6 +1,82 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/darkColor"
+    >
+
+    <ImageView
+        android:layout_width="@dimen/_80sdp"
+        android:layout_height="@dimen/_80sdp"
+        android:layout_centerHorizontal="true"
+        android:layout_above="@+id/identify_TV"
+        android:layout_marginBottom="@dimen/_40sdp"
+        android:src="@drawable/person"></ImageView>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/identify_TV"
+        android:layout_above="@+id/card"
+        android:layout_marginBottom="@dimen/_25sdp"
+        android:text="Identify yourself!"
+        android:layout_centerHorizontal="true"
+        android:fontFamily="@font/futura_bold"
+        android:textColor="@color/white"
+        android:textSize="@dimen/_20sdp"
+        ></TextView>
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="@dimen/_250sdp"
+        android:layout_height="@dimen/_38sdp"
+        android:id="@+id/card"
+        card_view:cardCornerRadius="@dimen/_10sdp"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true"
+        >
+
+        <EditText
+            android:layout_width="@dimen/_200sdp"
+            android:layout_height="@dimen/_30sdp"
+            android:id="@+id/username"
+            android:fontFamily="@font/helvetica"
+            android:layout_gravity="center"
+            android:background="@color/white"
+            ></EditText>
+    </androidx.cardview.widget.CardView>
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="@dimen/_250sdp"
+        android:layout_height="@dimen/_35sdp"
+        card_view:cardCornerRadius="@dimen/_25sdp"
+        card_view:cardBackgroundColor="@color/colorAccent"
+        android:layout_below="@+id/card"
+        android:layout_marginTop="@dimen/_30sdp"
+        android:clickable="true"
+        android:id="@+id/enter"
+        android:layout_centerHorizontal="true"
+        >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/white"
+            android:text="Hop Me"
+            android:fontFamily="@font/helvetica"
+            android:textSize="@dimen/_15sdp"
+            android:layout_gravity="center"
+            ></TextView>
+    </androidx.cardview.widget.CardView>
+
+
+</RelativeLayout>
+
+
+
+<!--<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical" android:layout_width="@dimen/_250sdp"
     android:layout_height="@dimen/_270sdp"
     android:layout_gravity="center"
@@ -55,7 +131,7 @@
             android:layout_marginTop="@dimen/_15sdp"
             ></Button>
 
-    </RelativeLayout>
+    <RelativeLayout>
 
     <de.hdodenhof.circleimageview.CircleImageView
         android:layout_width="@dimen/_80sdp"
@@ -72,5 +148,5 @@
         android:src="@drawable/login" />
 
 
-</RelativeLayout>
+</RelativeLayout>-->
 

@@ -186,7 +186,7 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnSe
         if(isConnected)
         {
 
-            for(int i=0; i<receivedTables.size();i++)
+            /*for(int i=0; i<receivedTables.size();i++)
             {
                 File file = new File(receivedTables.get(i).getPath());
                 RequestBody requestFile =
@@ -201,7 +201,6 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnSe
                 RequestBody fullName =
                         RequestBody.create(MediaType.parse("multipart/form-data"), "Your Name");
                 multipartImageUpload(receivedTables.get(i).getPath(),fName);
-
 
                 Retrofit retrofit = new Retrofit.Builder()
                         .baseUrl(Api.BASE_URL)
@@ -220,16 +219,39 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnSe
                         Log.d("Repository",t.getMessage());
                     }
                 });
+            }*/
+
+            for(int i=0; i<sentTables.size();i++)
+            {
+                String fName = sentTables.get(i).getId()+sentTables.get(i).getName()+".jpg";
+                multipartImageUploadUri(sentTables.get(i).getUri(),fName);
+
+                Retrofit retrofit = new Retrofit.Builder()
+                        .baseUrl(Api.BASE_URL)
+                        .addConverterFactory(GsonConverterFactory.create())
+                        .build();
+                Api service = retrofit.create(Api.class);
+                Call<String> daily = service.sendMessage(new Message(fName,sentTables.get(i).getMessage()));
+                daily.enqueue(new Callback<String>() {
+                    @Override
+                    public void onResponse(Call<String> call, Response<String> response) {
+
+                    }
+
+                    @Override
+                    public void onFailure(Call<String> call, Throwable t) {
+                        Log.d("Repository",t.getMessage());
+                    }
+                });
             }
-
-
-
-
 
         }else
         {
             Log.i("status","no");
         }
+
+
+
     }
 
     void startRepeatingTask()
@@ -393,7 +415,7 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnSe
                         connectedDevices.add(s);
                         connectedArrayAdapter.notifyDataSetChanged();
                         connectedNames.add(connected);
-                        //sendAvailableData(s);
+                        sendAvailableData(s);
                         if(connectedDevices.size()<2) {
                             startAdvertising();
                             startDiscovery();
@@ -908,38 +930,88 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnSe
 
     }
 
-    /*private void sendAvailableData(String endpoint)
-    {
-        String fName;
-        for(int i=0 ; i<sentTables.size();i++)
-        {
-            fName = sentTables.get(i).getId()+sentTables.get(i).getName();
-            File file = new File(sentTables.get(i).getPath());
-            byte[] encodedData = encode(file.getAbsolutePath(),fName);
+    private void sendAvailableData(String endpoint) {
+        stopAdvertising();
+        stopDiscovery();
 
+        //for received table
+        for (int i = 0; i < receivedTables.size(); i++) {
+            String filenameMessage = receivedTables.get(i).getId() + receivedTables.get(i).getName() +"\n"+ receivedTables.get(i).getMessage();
+
+
+            Nearby.getConnectionsClient(getApplicationContext()).sendPayload(endpoint, Payload.fromBytes(filenameMessage.getBytes()));
             try {
-                Payload byteArrayPayload = Payload.fromBytes(encodedData);
-                Nearby.getConnectionsClient(getApplicationContext()).sendPayload(endpoint, byteArrayPayload);
-
-            } catch (Exception e) {
-                Toast.makeText(MainActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+                if(receivedTables.get(i).getPath()!=null) {
+                    File file = new File(receivedTables.get(i).getPath());
+                    Nearby.getConnectionsClient(getApplicationContext()).sendPayload(endpoint, Payload.fromFile(file));
+                }
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
             }
+
         }
 
-        for(int i=0 ; i<receivedTables.size();i++)
-        {
-            fName = receivedTables.get(i).getId()+receivedTables.get(i).getName();
-            File file = new File(receivedTables.get(i).getPath());
-            byte[] encodedData = encode(file.getAbsolutePath(),fName);
+        //for sent table
+        for (int i = 0; i < sentTables.size(); i++) {
+            String filenameMessage = sentTables.get(i).getId() + sentTables.get(i).getName() +".jpg\n"+ sentTables.get(i).getMessage();
 
+
+            Nearby.getConnectionsClient(getApplicationContext()).sendPayload(endpoint, Payload.fromBytes(filenameMessage.getBytes()));
+            ParcelFileDescriptor pfd;
             try {
-                Payload byteArrayPayload = Payload.fromBytes(encodedData);
-                Nearby.getConnectionsClient(getApplicationContext()).sendPayload(endpoint, byteArrayPayload);
+                // Open the ParcelFileDescriptor for this URI with read access.
+                if(sentTables.get(i).getUri()!=null) {
+                    pfd = getContentResolver().openFileDescriptor(sentTables.get(i).getUri(), "r");
+                    Nearby.getConnectionsClient(getApplicationContext()).sendPayload(endpoint, Payload.fromFile(pfd));
+                }
 
-            } catch (Exception e) {
-                Toast.makeText(MainActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+            } catch (FileNotFoundException e) {
+                Log.e("MyApp", "File not found", e);
+                return;
             }
+
         }
+
+
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+        /*Payload filenameBytesPayload = Payload.fromBytes(fileNameMessage.getBytes());
+        ParcelFileDescriptor pfd;
+        try {
+            // Open the ParcelFileDescriptor for this URI with read access.
+            pfd = getContentResolver().openFileDescriptor(uri, "r");
+
+        } catch (FileNotFoundException e) {
+            Log.e("MyApp", "File not found", e);
+            return;
+        }
+        for(int i=0; i<connectedDevices.size();i++)
+        {
+            if(!connectedDevices.get(i).equals(endpoint)) {
+                Nearby.getConnectionsClient(getApplicationContext()).sendPayload(connectedDevices.get(i), filenameBytesPayload);
+
+                if (uri != null) {
+                    Payload filePayload = Payload.fromFile(pfd);
+                    Nearby.getConnectionsClient(getApplicationContext()).sendPayload(connectedDevices.get(i), filePayload);
+                }
+            }
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+
+                }
+            },4000);
     }*/
 
 
@@ -994,35 +1066,89 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnSe
         }*/
 
 
-    public byte[] getBytes(InputStream inputStream) throws IOException {
-        ByteArrayOutputStream byteBuffer = new ByteArrayOutputStream();
-        int bufferSize = 1024;
-        byte[] buffer = new byte[bufferSize];
+        public byte[] getBytes (InputStream inputStream) throws IOException {
+            ByteArrayOutputStream byteBuffer = new ByteArrayOutputStream();
+            int bufferSize = 1024;
+            byte[] buffer = new byte[bufferSize];
 
-        int len = 0;
-        while ((len = inputStream.read(buffer)) != -1) {
-            byteBuffer.write(buffer, 0, len);
+            int len = 0;
+            while ((len = inputStream.read(buffer)) != -1) {
+                byteBuffer.write(buffer, 0, len);
+            }
+            return byteBuffer.toByteArray();
         }
-        return byteBuffer.toByteArray();
-    }
 
-    @Override
-    public void onRequestPermissionsResult(final int requestCode, @NonNull final String[] permissions, @NonNull final int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-    }
+        @Override
+        public void onRequestPermissionsResult ( final int requestCode,
+        @NonNull final String[] permissions, @NonNull final int[] grantResults){
+            super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        }
 
 
-    private void multipartImageUpload(String path,String fname) {
+        private void multipartImageUpload (String path, String fname){
+            try {
+                File filesDir = getApplicationContext().getFilesDir();
+                File file = new File(getFilesDir(), fname);
+
+                Bitmap mBitmap = null;
+                ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                mBitmap = BitmapFactory.decodeFile(path);
+                mBitmap.compress(Bitmap.CompressFormat.PNG, 0, bos);
+                byte[] bitmapdata = bos.toByteArray();
+
+                Uri uri = null;
+                ParcelFileDescriptor parcelFileDescriptor = getContentResolver().openFileDescriptor(uri,"r");
+
+                file.setReadable(true);
+                FileOutputStream fos = new FileOutputStream(file);
+                fos.write(bitmapdata);
+                fos.flush();
+                fos.close();
+
+                Log.i("status", "yes");
+                Retrofit retrofit = new Retrofit.Builder()
+                        .baseUrl(Api.BASE_URL)
+                        .addConverterFactory(GsonConverterFactory.create())
+                        .build();
+                Api service = retrofit.create(Api.class);
+
+
+                RequestBody reqFile = RequestBody.create(MediaType.parse("image/*"), file);
+                MultipartBody.Part body = MultipartBody.Part.createFormData("upload", file.getName(), reqFile);
+                RequestBody name = RequestBody.create(MediaType.parse("text/plain"), "upload");
+
+                Call<ResponseBody> req = service.postImage(body, name);
+                req.enqueue(new Callback<ResponseBody>() {
+                    @Override
+                    public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+
+                    }
+
+                    @Override
+                    public void onFailure(Call<ResponseBody> call, Throwable t) {
+
+                    }
+                });
+
+
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+
+    private void multipartImageUploadUri (Uri uri, String fname){
         try {
             File filesDir = getApplicationContext().getFilesDir();
-            File file = new File(getFilesDir(),fname);
+            File file = new File(getFilesDir(), fname);
 
             Bitmap mBitmap = null;
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            mBitmap = BitmapFactory.decodeFile(path);
+            mBitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(),uri);
             mBitmap.compress(Bitmap.CompressFormat.PNG, 0, bos);
             byte[] bitmapdata = bos.toByteArray();
-
 
             file.setReadable(true);
             FileOutputStream fos = new FileOutputStream(file);
@@ -1030,7 +1156,7 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnSe
             fos.flush();
             fos.close();
 
-            Log.i("status","yes");
+            Log.i("status", "yes");
             Retrofit retrofit = new Retrofit.Builder()
                     .baseUrl(Api.BASE_URL)
                     .addConverterFactory(GsonConverterFactory.create())
@@ -1062,7 +1188,7 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnSe
             e.printStackTrace();
         }
     }
-}
+
 
 
 
@@ -1102,4 +1228,4 @@ public void onFailure(Call<String> call, Throwable t) {
         });*/
 
 
-
+    }

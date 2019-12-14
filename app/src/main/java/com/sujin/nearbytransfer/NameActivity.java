@@ -1,6 +1,7 @@
 package com.sujin.nearbytransfer;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.cardview.widget.CardView;
 
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -14,12 +15,14 @@ import android.widget.Toast;
 
 public class NameActivity extends AppCompatActivity {
 
-    Button enter;
+    CardView enter;
     EditText username;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_name);
+
+        getWindow().setStatusBarColor(getResources().getColor(R.color.darkColorLight));
 
 
         enter = findViewById(R.id.enter);

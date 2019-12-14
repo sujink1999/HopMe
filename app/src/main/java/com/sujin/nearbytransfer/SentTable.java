@@ -36,6 +36,10 @@ public class SentTable {
         return uri;
     }
 
+    public String getMessage() {
+        return message;
+    }
+
     public boolean checkID(String id, String name)
     {
         if(this.id.equals(id) && this.name.equals(name))
