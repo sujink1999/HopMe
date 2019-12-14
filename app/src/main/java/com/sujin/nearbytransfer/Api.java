@@ -16,7 +16,7 @@ import retrofit2.http.Part;
 import retrofit2.http.Query;
 
 public interface Api {
-    String BASE_URL = "http://10.5.8.158:3000";
+    String BASE_URL = "https://mighty-gorge-53328.herokuapp.com";
 
     @POST("/addMessage")
     Call<String> sendMessage(@Body Message message);

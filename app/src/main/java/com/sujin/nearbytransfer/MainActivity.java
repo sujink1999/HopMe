@@ -379,6 +379,7 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnSe
             public void onConnectionInitiated(@NonNull String s, @NonNull ConnectionInfo connectionInfo) {
                 stopAdvertising();
                 stopDiscovery();
+                connected = connectionInfo.getEndpointName();
                 Nearby.getConnectionsClient(getApplicationContext()).acceptConnection(s, payloadCallback);
             }
 
@@ -942,7 +943,7 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnSe
     }*/
 
 
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    /*protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == RC_PHOTO_PICKER
@@ -958,7 +959,7 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnSe
             sentTables.add(new SentTable(id,myName,userData,uri));
             broadcast(uri,fileNameMessage,"");
 
-        }
+        }*/
 
 
 
@@ -991,7 +992,7 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnSe
             }*//*
 
         }*/
-    }
+
 
     public byte[] getBytes(InputStream inputStream) throws IOException {
         ByteArrayOutputStream byteBuffer = new ByteArrayOutputStream();

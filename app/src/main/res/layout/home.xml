@@ -7,6 +7,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textSize="@dimen/_20sdp"
+        android:textStyle="bold"
         android:text="Enter text here..."
         android:layout_gravity="center_horizontal"
         android:layout_marginTop="@dimen/_20sdp"
@@ -19,6 +20,7 @@
         android:layout_margin="@dimen/_20sdp"
         android:padding="@dimen/_8sdp"
         android:hint="Start typing here"
+        android:background="@color/blue"
         android:gravity="top|left"
         android:textSize="@dimen/_12sdp" />
     <TextView
@@ -26,6 +28,7 @@
         android:layout_height="wrap_content"
         android:textSize="@dimen/_20sdp"
         android:text="Choose a photo"
+        android:padding="@dimen/_7sdp"
         android:textColor="#0000FF"
         android:id="@+id/choosePhoto"
         android:clickable="true"

@@ -1,21 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:background="@color/blue"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/_30sdp">
 
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="@dimen/_10sdp"
+        app:cardCornerRadius="@dimen/_15sdp"
+        android:layout_marginTop="@dimen/_10sdp"
+        android:layout_marginRight="@dimen/_10sdp"
+        android:layout_marginLeft="@dimen/_10sdp"
+
         >
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-
             android:textSize="@dimen/_25sdp"
-            android:layout_margin="@dimen/_10sdp"
-            android:text="hello"
+            android:layout_marginTop="@dimen/_10sdp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="@dimen/_10sdp"
+            android:text="HELLO"
             android:id="@+id/loggername"></TextView>
 
         <TextView
@@ -23,17 +32,17 @@
             android:layout_height="wrap_content"
             android:textSize="@dimen/_15sdp"
             android:layout_marginTop="@dimen/_55sdp"
+            android:layout_gravity="center_horizontal"
             android:layout_marginBottom="@dimen/_10sdp"
             android:text="hello"
-            android:layout_marginStart="@dimen/_10sdp"
             android:id="@+id/message"></TextView>
 
         <ImageView
+            android:id="@+id/loggerImage"
             android:layout_width="match_parent"
             android:layout_height="@dimen/_140sdp"
-            android:id="@+id/loggerImage"
-            android:layout_marginTop="@dimen/_85sdp"
-            ></ImageView>
+            android:layout_marginBottom="@dimen/_10sdp"
+            android:layout_marginTop="@dimen/_85sdp"></ImageView>
 
 
     </androidx.cardview.widget.CardView>
